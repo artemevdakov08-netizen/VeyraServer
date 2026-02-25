@@ -21,7 +21,7 @@ tokenizer = AutoTokenizer.from_pretrained(
 
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME,
-    torch_dtype=torch.float16,
+     dtype=torch.float16,
 )
 
 model.to(DEVICE)
@@ -69,6 +69,7 @@ def generate():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
