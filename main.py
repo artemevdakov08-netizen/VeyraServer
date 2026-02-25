@@ -1,15 +1,20 @@
+import os
 from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
 app = Flask(__name__)
 
-# Модель GPT (например Qwen-7B-Chat или любая легкая GPTQ версия)
-model_name = "Qwen/Qwen-7B-Chat-GPTQ"  # можно заменить на GPTQ для легкости
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+# Токен берём из переменной окружения HF_TOKEN
+hf_token = os.getenv("HF_TOKEN")  # токен не хранится в коде
+
+model_name = "Qwen/Qwen-7B-Chat-GPTQ"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=hf_token)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype=torch.float16  # экономим RAM
+    torch_dtype=torch.float16,
+    use_auth_token=hf_token
 )
 model.eval()
 
@@ -20,12 +25,11 @@ def generate():
     if not prompt:
         return jsonify({"error": "No prompt provided"}), 400
 
-    # Преобразуем в токены
-    inputs = tokenizer(prompt, return_tensors="pt").to("cpu")  # или "cuda" если есть GPU
+    inputs = tokenizer(prompt, return_tensors="pt").to("cpu")
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
-            max_new_tokens=128,  # ограничение, чтобы не застрял
+            max_new_tokens=128,
             do_sample=True,
             temperature=0.7,
             top_p=0.9
@@ -35,3 +39,4 @@ def generate():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
+
