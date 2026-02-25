@@ -10,12 +10,8 @@ app = Flask(__name__)
 # ===============================
 
 MODEL_NAME = "Qwen/Qwen-7B-Chat-GPTQ"
-HF_TOKEN = os.getenv("HF_TOKEN")  # берём токен из Environment Variables
 DEVICE = "cpu"  # если будет GPU, можно поменять на "cuda"
 MAX_TOKENS = 128
-
-if HF_TOKEN is None:
-    raise ValueError("HF_TOKEN не найден! Добавь его в Environment Variables.")
 
 print("Загрузка модели...")
 
@@ -75,5 +71,6 @@ def generate():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
+
 
 
