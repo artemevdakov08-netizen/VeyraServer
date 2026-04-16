@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 import json
-import OS
+import os
 
 clients = set()
 rooms = {}
@@ -28,7 +28,6 @@ async def handler(websocket):
                 "text": text
             })
 
-            # отправка всем в комнате
             for client in list(rooms[room]):
                 try:
                     await client.send(payload)
@@ -39,16 +38,16 @@ async def handler(websocket):
         pass
     finally:
         print("Client disconnected")
-        # чистка
         for r in rooms:
             rooms[r].discard(websocket)
 
 async def main():
     port = int(os.environ.get("PORT", 10000))
 
+    print(f"Server starting on port {port}")
+
     async with websockets.serve(handler, "0.0.0.0", port):
-        print("Server started")
-        await asyncio.Future()
+        await asyncio.Future()  # run forever
 
 if __name__ == "__main__":
     asyncio.run(main())
