@@ -1,28 +1,57 @@
 import asyncio
 import websockets
+import json
+import OS
 
 clients = set()
-
 rooms = {}
 
 async def handler(websocket):
-    async for message in websocket:
-        data = json.loads(message)
+    print("Client connected")
+    try:
+        async for message in websocket:
+            data = json.loads(message)
 
-        room = data["room"]
-        text = data["text"]
+            room = data.get("room")
+            text = data.get("text")
 
-        if room not in rooms:
-            rooms[room] = set()
+            if not room:
+                continue
 
-        # добавляем клиента в комнату
-        rooms[room].add(websocket)
+            if room not in rooms:
+                rooms[room] = set()
 
-        # пересылаем только в эту комнату
-        for client in rooms[room]:
-            await client.send(json.dumps(data))
+            rooms[room].add(websocket)
+
+            payload = json.dumps({
+                "room": room,
+                "text": text
+            })
+
+            # отправка всем в комнате
+            for client in list(rooms[room]):
+                try:
+                    await client.send(payload)
+                except:
+                    rooms[room].remove(client)
+
+    except:
+        pass
+    finally:
+        print("Client disconnected")
+        # чистка
+        for r in rooms:
+            rooms[r].discard(websocket)
 
 async def main():
+    port = int(os.environ.get("PORT", 10000))
+
+    async with websockets.serve(handler, "0.0.0.0", port):
+        print("Server started")
+        await asyncio.Future()
+
+if __name__ == "__main__":
+    asyncio.run(main())
     async with websockets.serve(handler, "0.0.0.0", 10000):
         print("Server started")
         await asyncio.Future()  # run forever
