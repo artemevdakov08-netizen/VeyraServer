@@ -6,7 +6,7 @@ import os
 rooms = {}
 
 async def handler(websocket):
-    print("🔥 CLIENT CONNECTED")
+    print("CLIENT CONNECTED")
 
     try:
         async for message in websocket:
@@ -23,24 +23,24 @@ async def handler(websocket):
                 try:
                     await client.send(json.dumps(data))
                 except:
-                    rooms[room].remove(client)
+                    rooms[room].discard(client)
 
     except:
         print("CLIENT DISCONNECTED")
 
 
 async def main():
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ["PORT"])  # 💥 ТОЛЬКО ТАК
 
     print("SERVER STARTED ON", port)
 
-    async with websockets.serve(handler, "0.0.0.0", port):
-        await asyncio.Future()
+    server = await websockets.serve(handler, "0.0.0.0", port)
+
+    await server.wait_closed()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())ure()
-
+    asyncio.run(main())
 
 if __name__ == "__main__":
     asyncio.run(main())
