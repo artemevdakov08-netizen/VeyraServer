@@ -29,28 +29,17 @@ async def handler(websocket):
         print("CLIENT DISCONNECTED")
 
 
-# 💥 ВОТ ЭТО ДОБАВЛЯЕМ
-async def process_request(path, request_headers):
-    return (200, [], b"OK")
-
-
 async def main():
     port = int(os.environ.get("PORT", 10000))
 
     print("SERVER STARTED ON", port)
 
-    async with websockets.serve(
-        handler,
-        "0.0.0.0",
-        port,
-        process_request=process_request  # 💥 ВАЖНО
-    ):
+    async with websockets.serve(handler, "0.0.0.0", port):
         await asyncio.Future()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
-        await asyncio.Future()
+    asyncio.run(main())ure()
 
 
 if __name__ == "__main__":
